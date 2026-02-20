@@ -1,12 +1,15 @@
 [submodule "InternetGrounding"]
         path = InternetGrounding
         url = https://github.com/suryami62/InternetGrounding.git
+[submodule "personal-development-tracker"]
+        path = personal-development-tracker
+        url = https://github.com/cds-id/pdt.git
 [submodule "malasfetch"]
         path = malasfetch
         url = https://github.com/broman0x/malasfetch.git
 [submodule "gamelaneka"]
-	path = gamelaneka
-	url = https://github.com/dendik-creation/gamelaneka
+        path = gamelaneka
+        url = https://github.com/dendik-creation/gamelaneka
 [submodule "YukPerpus"]
         path = YukPerpus
         url = https://github.com/Gustyx-Power/YukPerpus.git
