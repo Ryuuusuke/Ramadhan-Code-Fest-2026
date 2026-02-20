@@ -37,3 +37,15 @@
 [submodule "Ai-On-TelegramBot"]
         path = Ai-On-TelegramBot
         url = https://github.com/Gustyx-Power/Ai-On-TelegramBot.git
+[submodule "Indobe-Bank-e-Money-Indonesia-WordPress-Plugin"]
+	path = Indobe-Bank-e-Money-Indonesia-WordPress-Plugin
+	url = https://github.com/reynaldiarya/Indobe-Bank-e-Money-Indonesia-WordPress-Plugin.git
+[submodule "Keyword-Rank-Tracker"]
+	path = Keyword-Rank-Tracker
+	url = https://github.com/reynaldiarya/Keyword-Rank-Tracker.git
+[submodule "WAFleet"]
+	path = WAFleet
+	url = https://github.com/reynaldiarya/WAFleet.git
+[submodule "SEO-Sitemap-Discovery"]
+	path = SEO-Sitemap-Discovery
+	url = https://github.com/reynaldiarya/SEO-Sitemap-Discovery.git
