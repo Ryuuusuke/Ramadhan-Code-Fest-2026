@@ -1,0 +1,1936 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Doi Lu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* MAIN CONSOLE */
+        .console {
+            background: linear-gradient(145deg, #e0e0e0, #f5f5f5);
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+            border-radius: 30px 30px 40px 40px;
+            box-shadow: 
+                0 20px 60px rgba(0,0,0,0.3),
+                inset 0 1px 3px rgba(255,255,255,0.8);
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 9px;
+            color: #666;
+        }
+
+        .power-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .led {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff3366;
+            box-shadow: 0 0 10px #ff3366;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* SCREEN */
+        .game-screen {
+            background: linear-gradient(145deg, #1a4d2e, #0d3320);
+            border: 3px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 280px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .screen-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 7px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .battery-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .battery-led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            box-shadow: 0 0 8px #ff6b6b;
+        }
+
+        .screen-content {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .title {
+            color: #00ff88;
+            font-size: 28px;
+            text-shadow: 0 0 20px #00ff88;
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px #00ff88; }
+            50% { text-shadow: 0 0 30px #00ff88, 0 0 40px #00ff88; }
+        }
+
+        .subtitle {
+            color: #ffdd00;
+            font-size: 12px;
+            text-shadow: 0 0 10px #ffdd00;
+        }
+
+        /* MENU BUTTONS */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .menu-btn {
+            padding: 18px;
+            border: 3px solid #333;
+            border-radius: 12px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: transform 0.1s;
+            text-transform: uppercase;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .menu-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .menu-btn.blue {
+            background: linear-gradient(145deg, #5588ff, #4477ee);
+            color: white;
+        }
+
+        .menu-btn.red {
+            background: linear-gradient(145deg, #ff5566, #ee4455);
+            color: white;
+        }
+
+        .menu-btn.purple {
+            background: linear-gradient(145deg, #aa66ff, #9955ee);
+            color: white;
+        }
+
+        .menu-btn.green {
+            background: linear-gradient(145deg, #44dd88, #33cc77);
+            color: white;
+        }
+
+        /* CONTROLS */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .dpad {
+            position: relative;
+            width: 110px;
+            height: 110px;
+        }
+
+        .dpad-btn {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            background: #2a2a2a;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+        }
+
+        .dpad-btn:active {
+            background: #1a1a1a;
+            transform: translateY(2px);
+        }
+
+        .dpad-up {
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .dpad-down {
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            border-radius: 0 0 4px 4px;
+        }
+
+        .dpad-left {
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .dpad-right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 0 4px 4px 0;
+        }
+
+        .dpad-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            background: #1a1a1a;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff3366, #dd2255);
+            border: 3px solid #aa1133;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255,51,102,0.4);
+        }
+
+        .action-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 8px rgba(255,51,102,0.4);
+        }
+
+        .system-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .system-btn {
+            padding: 8px 20px;
+            background: #555;
+            border: 2px solid #333;
+            border-radius: 20px;
+            color: #aaa;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            cursor: pointer;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .system-btn:active {
+            background: #444;
+        }
+
+        .speaker {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .speaker-hole {
+            width: 4px;
+            height: 4px;
+            background: #999;
+            border-radius: 50%;
+        }
+
+        /* SUB SCREENS */
+        .sub-console {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            width: 100%;
+            max-width: 420px;
+            padding: 25px;
+            border-radius: 25px;
+            box-shadow: 0 0 0 4px #ffdd00, 0 20px 60px rgba(0,0,0,0.5);
+        }
+
+        .sub-screen {
+            background: linear-gradient(145deg, #1a4d2e, #0d3320);
+            border: 3px solid #0a2616;
+            border-radius: 12px;
+            padding: 25px;
+            min-height: 400px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+            margin-bottom: 20px;
+        }
+
+        .sub-title {
+            color: #00ff88;
+            font-size: 22px;
+            text-shadow: 0 0 20px #00ff88;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* MESSAGE SCREEN */
+        .message-content {
+            color: #00ff88;
+            font-size: 11px;
+            line-height: 1.8;
+            text-shadow: 0 0 5px rgba(0,255,136,0.5);
+            max-height: 320px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .message-content p {
+            margin-bottom: 8px;
+            white-space: pre-wrap;
+        }
+
+        /* typing caret */
+        .message-content .caret {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: #00ff88;
+            margin-left: 3px;
+            vertical-align: bottom;
+            animation: blink 1s steps(1) infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        .message-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .message-content::-webkit-scrollbar-track {
+            background: #0a2616;
+            border-radius: 4px;
+        }
+
+        .message-content::-webkit-scrollbar-thumb {
+            background: #00ff88;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        /* GALLERY SCREEN */
+        .photobox-header {
+            background: linear-gradient(145deg, #555, #444);
+            padding: 12px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+
+        .photobox-title {
+            color: #ffdd00;
+            font-size: 10px;
+        }
+
+        .status-leds {
+            display: flex;
+            gap: 8px;
+        }
+
+        .status-led {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-led.red {
+            background: #ff3366;
+            box-shadow: 0 0 8px #ff3366;
+        }
+
+        .status-led.green {
+            background: #00ff88;
+            box-shadow: 0 0 8px #00ff88;
+        }
+
+        .photobox-progress {
+            background: #555;
+            padding: 8px;
+            border-radius: 0 0 8px 8px;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            background: #333;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #00ff88, #00dd77);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #00ff88;
+        }
+
+        .camera-view {
+            background: #1a1a2e;
+            min-height: 250px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 10px;
+            overflow: hidden;
+        }
+
+        #cameraVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        #capturedPhoto {
+            max-width: 100%;
+            max-height: 250px;
+            display: none;
+        }
+
+        .camera-controls {
+            display: none;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .camera-btn {
+            padding: 8px 12px;
+            background: #555;
+            border: 2px solid #333;
+            border-radius: 8px;
+            color: #ccc;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 8px;
+            cursor: pointer;
+        }
+
+        .start-btn {
+            padding: 15px 30px;
+            background: linear-gradient(145deg, #ff5566, #ee4455);
+            border: 3px solid #cc3344;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255,85,102,0.4);
+            width: 100%;
+        }
+
+        /* PHOTOBOX ENHANCEMENTS */
+.photo-count {
+    text-align: center;
+    color: #ffdd00;
+    font-size: 8px;
+    margin-top: 8px;
+    text-shadow: 0 0 10px #ffdd00;
+}
+
+.camera-container {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.camera-view {
+    background: #000;
+    min-height: 250px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.camera-msg {
+    color: #666;
+    font-size: 10px;
+    text-align: center;
+    z-index: 1;
+}
+
+#cameraVideo {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    display: none;
+    transform: scaleX(-1); /* Mirror effect */
+}
+
+#cameraVideo.active {
+    display: block;
+}
+
+.countdown {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 80px;
+    color: #fff;
+    text-shadow: 0 0 30px #ff3366, 0 0 60px #ff3366;
+    z-index: 10;
+    display: none;
+    animation: countdownPulse 1s ease-in-out;
+}
+
+.countdown.active {
+    display: block;
+}
+
+@keyframes countdownPulse {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.flash-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.flash-effect.active {
+    animation: flashAnimation 0.5s ease-out;
+}
+
+@keyframes flashAnimation {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.photo-frame {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.camera-view:hover .photo-frame {
+    opacity: 1;
+}
+
+.frame-corner {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 3px solid #00ff88;
+    box-shadow: 0 0 15px #00ff88;
+}
+
+.frame-corner.tl {
+    top: 10px;
+    left: 10px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.frame-corner.tr {
+    top: 10px;
+    right: 10px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.frame-corner.bl {
+    bottom: 10px;
+    left: 10px;
+    border-right: none;
+    border-top: none;
+}
+
+.frame-corner.br {
+    bottom: 10px;
+    right: 10px;
+    border-left: none;
+    border-top: none;
+}
+
+.camera-controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.camera-btn {
+    padding: 10px 15px;
+    border: 3px solid #333;
+    border-radius: 8px;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.camera-btn.capture {
+    background: linear-gradient(145deg, #ff3366, #dd2255);
+    color: white;
+    flex: 2;
+}
+
+.camera-btn.stop {
+    background: linear-gradient(145deg, #555, #444);
+    color: #ccc;
+    flex: 1;
+}
+
+.camera-btn:active {
+    transform: translateY(2px);
+}
+
+.photo-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+}
+
+.photo-strip.active {
+    max-height: 500px;
+}
+
+.photo-item {
+    position: relative;
+    background: #fff;
+    padding: 8px;
+    border-radius: 4px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    animation: photoAppear 0.5s ease-out;
+}
+
+@keyframes photoAppear {
+    0% { 
+        transform: scale(0) rotate(-10deg);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.1) rotate(2deg);
+    }
+    100% { 
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.photo-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+    display: block;
+}
+
+.photo-item .photo-label {
+    text-align: center;
+    font-size: 6px;
+    color: #333;
+    margin-top: 5px;
+    font-family: 'Courier New', monospace;
+}
+
+.photo-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 5px;
+}
+
+.photo-action-btn {
+    flex: 1;
+    padding: 5px;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 3px;
+    color: #fff;
+    font-size: 6px;
+    cursor: pointer;
+    font-family: 'Press Start 2P', monospace;
+}
+
+.photo-action-btn:hover {
+    background: #555;
+}
+
+.start-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(145deg, #44dd88, #33cc77);
+    border: 3px solid #22bb66;
+    border-radius: 12px;
+    color: white;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(68, 221, 136, 0.4);
+    margin-bottom: 15px;
+    transition: all 0.2s;
+}
+
+.start-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 8px rgba(68, 221, 136, 0.4);
+}
+
+.start-btn:disabled {
+    background: #666;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+        /* MUSIC PLAYER */
+        .album-art {
+            background: #2a2a2a;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            aspect-ratio: 1 / 1;
+            width: 100%;
+        }
+
+        .album-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .now-playing {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .song-title {
+            color: #00ff88;
+            font-size: 11px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #00ff88;
+        }
+
+        .artist-name {
+            color: #ffdd00;
+            font-size: 9px;
+            text-shadow: 0 0 10px #ffdd00;
+        }
+
+        .progress-container {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .time-display {
+            display: flex;
+            justify-content: space-between;
+            font-size: 8px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .seek-bar {
+            background: #1a1a1a;
+            height: 8px;
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .seek-progress {
+            background: linear-gradient(90deg, #ffdd00, #ffaa00);
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            box-shadow: 0 0 10px #ffdd00;
+            position: relative;
+        }
+
+        .seek-handle {
+            position: absolute;
+            right: -6px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            background: #ffdd00;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ffdd00;
+        }
+
+        .volume-controls {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+        }
+
+        .volume-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #555, #444);
+            border: 3px solid #333;
+            border-radius: 50%;
+            color: #aaa;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .playback-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .play-btn {
+            flex: 2;
+            padding: 15px;
+            background: linear-gradient(145deg, #5588ff, #4477ee);
+            border: 3px solid #3366dd;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .skip-btn {
+            flex: 1;
+            padding: 15px;
+            background: linear-gradient(145deg, #5588ff, #4477ee);
+            border: 3px solid #3366dd;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .mute-btn {
+            padding: 12px 18px;
+            background: linear-gradient(145deg, #555, #444);
+            border: 3px solid #333;
+            border-radius: 10px;
+            color: #aaa;
+            font-size: 14px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .playlist-section {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .playlist-title {
+            color: #ffdd00;
+            font-size: 10px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px #ffdd00;
+        }
+
+        .playlist-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .playlist-item:hover {
+            background: rgba(0,255,136,0.2);
+        }
+
+        .playlist-item.active {
+            background: rgba(0,255,136,0.3);
+            box-shadow: 0 0 10px rgba(0,255,136,0.5);
+        }
+
+        .song-info {
+            color: #aaa;
+            font-size: 8px;
+        }
+
+        .song-duration {
+            color: #666;
+            font-size: 8px;
+        }
+
+        /* TETRIS */
+        .tetris-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .game-stat {
+            color: #ffdd00;
+            font-size: 10px;
+            text-shadow: 0 0 10px #ffdd00;
+        }
+
+        .game-stat span {
+            color: #00ff88;
+        }
+
+        #tetrisCanvas {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            border: 3px solid #0a2616;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto 15px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+        }
+
+        .game-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .game-btn {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(145deg, #5588ff, #4477ee);
+            border: 3px solid #3366dd;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .game-btn.rotate {
+            background: linear-gradient(145deg, #aa66ff, #9955ee);
+            border-color: #8844dd;
+        }
+
+        .start-game-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(145deg, #44dd88, #33cc77);
+            border: 3px solid #22bb66;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* NAVIGATION */
+        .nav-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            width: 100%;
+            padding: 15px;
+            border: 3px solid #333;
+            border-radius: 12px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        .nav-btn.continue {
+            background: linear-gradient(145deg, #44dd88, #33cc77);
+            color: white;
+        }
+
+        .nav-btn.back {
+            background: linear-gradient(145deg, #ff5566, #ee4455);
+            color: white;
+        }
+
+        @media (max-width: 480px) {
+            .console, .sub-console {
+                max-width: 95%;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .menu-btn {
+                font-size: 12px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HOME SCREEN -->
+    <div id="home-screen" class="screen active">
+        <div class="console">
+            <div class="console-header">
+                <div class="power-indicator">
+                    <div class="led"></div>
+                    <span>POWER</span>
+                </div>
+                <div class="brand">Axlele</div>
+            </div>
+
+            <div class="game-screen">
+                <div class="screen-info">
+                    <span>DOT MATRIX WITH STEREO SOUND</span>
+                    <div class="battery-indicator">
+                        <div class="battery-led"></div>
+                        <span>BATTERY</span>
+                    </div>
+                </div>
+
+                <div class="screen-content">
+                    <h1 class="title">// Nama Doi Lu //<br>I Love You!</h1>
+                    <p class="subtitle">Press Start Button</p>
+                </div>
+            </div>
+
+            <div class="menu-grid">
+                <button class="menu-btn blue" onclick="showScreen('message')">MESSAGE</button>
+                <button class="menu-btn red" onclick="showScreen('gallery')">GALLERY</button>
+                <button class="menu-btn purple" onclick="showScreen('music')">MUSIC</button>
+                <button class="menu-btn green" onclick="showScreen('tetris')">TETRIS</button>
+            </div>
+
+            <div class="controls">
+                <div class="dpad">
+                    <button class="dpad-btn dpad-up"></button>
+                    <button class="dpad-btn dpad-down"></button>
+                    <button class="dpad-btn dpad-left"></button>
+                    <button class="dpad-btn dpad-right"></button>
+                    <div class="dpad-center"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="action-btn">B</button>
+                    <button class="action-btn">A</button>
+                </div>
+            </div>
+
+            <div class="system-buttons">
+                <button class="system-btn">SELECT</button>
+                <button class="system-btn">START</button>
+            </div>
+
+            <div class="speaker">
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+                <div class="speaker-hole"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MESSAGE SCREEN -->
+    <div id="message-screen" class="screen">
+        <div class="sub-console">
+            <div class="sub-screen">
+                <h2 class="sub-title">Message</h2>
+                <div class="message-content">
+                    <p>Hai // Nama Doi Lu //,</p>
+                    <br>
+                    <p>I Love You!</p>
+                    <br>
+                    <p>aku cuma mau ngmong thank u for being in my life, i lovee u so so sooo much.
+kalo misalnya ada alat ukur kebahagiaan mungkin udah ngga ke ukur sebahagia apa, tapi dengan ada nya kata kata ini udah nyeritain semuaaa nya. semenjak kamu dateng akuu jadi ngerasa punya support system terbaik yang dulu ga pernah aku temuin di seseorang manapun, kamu selalu dukung apa aja yang aku lakuin, kamu selalu jadi alesan aku kenapa setiap hari aku bahagia, makasi udah mau bertahan sampai saat iniii buat akuu gabisa ngucapin apa apaa lagi karena kata kata aja ngga cukup buat kasih tau dunia kalo akuu beruntung bisa punya kamu, tetep jadi my fav person yang aku kenal yaaaww, selalu jadi rumah buat akuu. yang terakhir, aku mau kamu stay sama akuu teruss. jngan tinggalin aku ya? hehe. aku jga mw cerita semenjak kehadiran kamu udah bikin aku sebahagia inii, AKUU BAHAGIA BANGET BISA KENAL KAMUU!! tauu gaa?!? 24/7 aku itu suka cerita tau tntang kmu ke orang orang terdekat ku krn AKU SAYANGG BANGET SM KAMUU</p>
+                    <br>
+                    <p>Makasih udah jadi temen curhat, partner in crime, dan seseorang yang selalu ada buat aku. Semoga kamu makin bahagia, makin sukses, dan makin kece!</p>
+                    <br>
+                    <p>Love you! ❤️</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn continue" onclick="showScreen('gallery')">SELANJUTNYA</button>
+                <button class="nav-btn back" onclick="showScreen('home')">KEMBALI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GALLERY SCREEN -->
+<div id="gallery-screen" class="screen">
+    <div class="sub-console">
+        <div class="sub-screen">
+            <h2 class="sub-title">Photobox</h2>
+            
+            <div class="photobox-header">
+                <div class="status-leds">
+                    <div class="status-led red"></div>
+                </div>
+                <span class="photobox-title">HEYTML PHOTOBOX</span>
+                <div class="status-leds">
+                    <div class="status-led green"></div>
+                </div>
+            </div>
+
+            <div class="photobox-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="photoProgress"></div>
+                </div>
+                <div class="photo-count">📷 <span id="photoCount">0</span>/4 Photos</div>
+            </div>
+
+            <div class="camera-container">
+                <div class="camera-view" id="cameraView">
+                    <span class="camera-msg">Press START to begin</span>
+                    <video id="cameraVideo" autoplay playsinline></video>
+                    <div class="countdown" id="countdown"></div>
+                    <div class="flash-effect" id="flashEffect"></div>
+                    <canvas id="photoCanvas" style="display:none;"></canvas>
+                </div>
+
+                <div class="photo-frame">
+                    <div class="frame-corner tl"></div>
+                    <div class="frame-corner tr"></div>
+                    <div class="frame-corner bl"></div>
+                    <div class="frame-corner br"></div>
+                </div>
+            </div>
+
+            <div class="camera-controls" id="cameraControls" style="display:none;">
+                <button class="camera-btn capture" onclick="capturePhoto()">📷 SNAP</button>
+                <button class="camera-btn stop" onclick="stopCamera()">⏹ STOP</button>
+            </div>
+
+            <button class="start-btn" id="startBtn" onclick="startPhotobox()">🎬 START SESSION</button>
+
+            <div class="photo-strip" id="photoStrip"></div>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="nav-btn continue" onclick="showScreen('music')">SELANJUTNYA</button>
+            <button class="nav-btn back" onclick="showScreen('home')">KEMBALI</button>
+        </div>
+    </div>
+</div>
+
+    <!-- MUSIC SCREEN -->
+    <div id="music-screen" class="screen">
+        <div class="sub-console">
+            <div class="sub-screen">
+                <h2 class="sub-title">Music Player</h2>
+
+                <div class="album-art">
+                    <!-- UBAH JADI FOTO DOI -->
+                    <img id="albumArt" src="./assets/images/album.jpg" alt="Album Art">
+                </div>
+
+                <div class="now-playing">
+                    <div class="song-title" id="currentSong">On Bended Knee</div>
+                    <div class="artist-name" id="currentArtist">Boyz II Men</div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="time-display">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">5:29</span>
+                    </div>
+                    <div class="seek-bar" onclick="seekAudio(event)">
+                        <div class="seek-progress" id="seekProgress">
+                            <div class="seek-handle"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="volume-controls">
+                    <button class="volume-btn" onclick="changeVolume(-0.1)">−</button>
+                    <button class="volume-btn" style="font-size: 24px;">🔊</button>
+                    <button class="volume-btn" onclick="changeVolume(0.1)">+</button>
+                </div>
+
+                <div class="playback-controls">
+                    <button class="skip-btn" onclick="previousSong()">⏮</button>
+                    <button class="play-btn" id="playPauseBtn" onclick="togglePlay()">▶ PLAY</button>
+                    <button class="skip-btn" onclick="nextSong()">⏭</button>
+                </div>
+
+                <div class="playback-controls">
+                    <button class="mute-btn" onclick="toggleMute()">🔇</button>
+                </div>
+
+                <div class="playlist-section">
+                    <div class="playlist-title">PLAYLIST:</div>
+                    <div id="playlistContainer"></div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn continue" onclick="showScreen('tetris')">SELANJUTNYA</button>
+                <button class="nav-btn back" onclick="showScreen('home')">KEMBALI</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TETRIS SCREEN -->
+    <div id="tetris-screen" class="screen">
+        <div class="sub-console">
+            <div class="sub-screen">
+                <h2 class="sub-title">Tetris</h2>
+
+                <div class="tetris-header">
+                    <div class="game-stat">Score: <span id="score">0</span></div>
+                    <div class="game-stat">Level: <span id="level">1</span></div>
+                </div>
+
+                <div class="tetris-header">
+                    <div class="game-stat">Lines: <span id="lines">0</span></div>
+                    <div></div>
+                </div>
+
+                <canvas id="tetrisCanvas" width="240" height="400"></canvas>
+
+                <div class="game-controls">
+                    <button class="game-btn" onclick="moveTetromino('left')">◄</button>
+                    <button class="game-btn rotate" onclick="rotateTetromino()">ROTATE</button>
+                    <button class="game-btn" onclick="moveTetromino('right')">►</button>
+                </div>
+
+                <button class="start-game-btn" onclick="startTetris()">START GAME</button>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn back" onclick="showScreen('home')">KEMBALI</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" style="display:none;"></audio>
+
+    <script>
+        // NAVIGATION
+        function showScreen(screenName) {
+            // stop any typing in progress when navigating
+            clearTyping();
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenName + '-screen').classList.add('active');
+            
+            if(screenName === 'music') {
+                initMusicPlayer();
+            } else if(screenName === 'tetris') {
+                resetTetris();
+            } else if(screenName === 'message') {
+                startTypingMessage();
+            }
+        }
+
+        // PHOTOBOX / GALLERY
+let stream = null;
+let photosTaken = [];
+let isCapturing = false;
+
+async function startPhotobox() {
+    const cameraView = document.getElementById('cameraView');
+    const video = document.getElementById('cameraVideo');
+    const controls = document.getElementById('cameraControls');
+    const startBtn = document.getElementById('startBtn');
+    const msg = cameraView.querySelector('.camera-msg');
+    
+    try {
+        stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { 
+                facingMode: 'user',
+                width: { ideal: 640 },
+                height: { ideal: 480 }
+            }, 
+            audio: false 
+        });
+        
+        video.srcObject = stream;
+        video.classList.add('active');
+        if(msg) msg.style.display = 'none';
+        controls.style.display = 'flex';
+        startBtn.style.display = 'none';
+        
+        document.getElementById('photoProgress').style.width = '100%';
+        
+    } catch(err) {
+        console.error('Camera error:', err);
+        alert('Cannot access camera. Using simulation mode...');
+        simulatePhotoMode();
+    }
+}
+
+function simulatePhotoMode() {
+    const controls = document.getElementById('cameraControls');
+    const startBtn = document.getElementById('startBtn');
+    const msg = document.querySelector('.camera-msg');
+    
+    if(msg) msg.textContent = 'SIMULATION MODE';
+    controls.style.display = 'flex';
+    startBtn.style.display = 'none';
+    document.getElementById('photoProgress').style.width = '100%';
+}
+
+async function capturePhoto() {
+    if(isCapturing) return;
+    if(photosTaken.length >= 4) {
+        alert('Maximum 4 photos reached!');
+        return;
+    }
+    
+    isCapturing = true;
+    const video = document.getElementById('cameraVideo');
+    const canvas = document.getElementById('photoCanvas');
+    const countdown = document.getElementById('countdown');
+    const flash = document.getElementById('flashEffect');
+    
+    // Countdown 3-2-1
+    for(let i = 3; i > 0; i--) {
+        countdown.textContent = i;
+        countdown.classList.add('active');
+        await sleep(1000);
+        countdown.classList.remove('active');
+        await sleep(100);
+    }
+    
+    // Flash effect
+    flash.classList.add('active');
+    setTimeout(() => flash.classList.remove('active'), 500);
+    
+    // Capture photo
+    if(video.srcObject) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        
+        // Mirror the image back (since video is mirrored)
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0);
+        
+        const photoData = canvas.toDataURL('image/png');
+        addPhotoToStrip(photoData);
+    } else {
+        // Simulation mode - generate placeholder
+        const photoData = generatePlaceholderPhoto();
+        addPhotoToStrip(photoData);
+    }
+    
+    isCapturing = false;
+}
+
+function generatePlaceholderPhoto() {
+    const canvas = document.getElementById('photoCanvas');
+    canvas.width = 400;
+    canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+    
+    // Gradient background
+    const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+    gradient.addColorStop(0, '#667eea');
+    gradient.addColorStop(1, '#764ba2');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 400, 300);
+    
+    // Text
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 30px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText('📷', 200, 130);
+    ctx.font = '20px Arial';
+    ctx.fillText('Photo #' + (photosTaken.length + 1), 200, 180);
+    
+    return canvas.toDataURL('image/png');
+}
+
+function addPhotoToStrip(photoData) {
+    photosTaken.push(photoData);
+    
+    const strip = document.getElementById('photoStrip');
+    strip.classList.add('active');
+    
+    const photoItem = document.createElement('div');
+    photoItem.className = 'photo-item';
+    photoItem.innerHTML = `
+        <img src="${photoData}" alt="Photo ${photosTaken.length}">
+        <div class="photo-label">${new Date().toLocaleTimeString()}</div>
+        <div class="photo-actions">
+            <button class="photo-action-btn" onclick="downloadPhoto(${photosTaken.length - 1})">💾 SAVE</button>
+            <button class="photo-action-btn" onclick="deletePhoto(${photosTaken.length - 1})">🗑 DEL</button>
+        </div>
+    `;
+    
+    strip.appendChild(photoItem);
+    
+    // Update counter
+    document.getElementById('photoCount').textContent = photosTaken.length;
+    
+    if(photosTaken.length >= 4) {
+        document.getElementById('cameraControls').querySelector('.capture').disabled = true;
+        document.getElementById('cameraControls').querySelector('.capture').textContent = '✓ DONE';
+    }
+}
+
+function downloadPhoto(index) {
+    const link = document.createElement('a');
+    link.download = `photobox_${Date.now()}_${index + 1}.png`;
+    link.href = photosTaken[index];
+    link.click();
+}
+
+function deletePhoto(index) {
+    if(confirm('Delete this photo?')) {
+        photosTaken.splice(index, 1);
+        refreshPhotoStrip();
+    }
+}
+
+function refreshPhotoStrip() {
+    const strip = document.getElementById('photoStrip');
+    strip.innerHTML = '';
+    
+    photosTaken.forEach((photoData, index) => {
+        const photoItem = document.createElement('div');
+        photoItem.className = 'photo-item';
+        photoItem.innerHTML = `
+            <img src="${photoData}" alt="Photo ${index + 1}">
+            <div class="photo-label">${new Date().toLocaleTimeString()}</div>
+            <div class="photo-actions">
+                <button class="photo-action-btn" onclick="downloadPhoto(${index})">💾 SAVE</button>
+                <button class="photo-action-btn" onclick="deletePhoto(${index})">🗑 DEL</button>
+            </div>
+        `;
+        strip.appendChild(photoItem);
+    });
+    
+    document.getElementById('photoCount').textContent = photosTaken.length;
+    
+    if(photosTaken.length < 4) {
+        const captureBtn = document.getElementById('cameraControls').querySelector('.capture');
+        if(captureBtn) {
+            captureBtn.disabled = false;
+            captureBtn.textContent = '📷 SNAP';
+        }
+    }
+}
+
+function stopCamera() {
+    if(stream) {
+        stream.getTracks().forEach(track => track.stop());
+    }
+    
+    const video = document.getElementById('cameraVideo');
+    video.classList.remove('active');
+    video.srcObject = null;
+    
+    document.getElementById('cameraControls').style.display = 'none';
+    document.getElementById('startBtn').style.display = 'block';
+    document.getElementById('photoProgress').style.width = '0%';
+    
+    const msg = document.querySelector('.camera-msg');
+    if(msg) {
+        msg.style.display = 'block';
+        msg.textContent = 'Press START to begin';
+    }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+        // TYPING EFFECT FOR MESSAGE SCREEN
+        const messageParagraphs = Array.from(document.querySelectorAll('.message-content p')).map(p => p.innerHTML.trim());
+        let typingIntervals = [];
+        let typingTimeouts = [];
+
+        function clearTyping() {
+            typingIntervals.forEach(id => clearInterval(id));
+            typingTimeouts.forEach(id => clearTimeout(id));
+            typingIntervals = [];
+            typingTimeouts = [];
+        }
+
+        function startTypingMessage() {
+            clearTyping();
+            const container = document.querySelector('.message-content');
+            container.innerHTML = '';
+
+            // Respect user's reduced motion preference
+            if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                container.innerHTML = messageParagraphs.map(t => `<p>${t}</p>`).join('');
+                return;
+            }
+
+            let paraIndex = 0;
+
+            function typeParagraph() {
+                if (paraIndex >= messageParagraphs.length) return;
+                const p = document.createElement('p');
+                container.appendChild(p);
+                const text = messageParagraphs[paraIndex];
+                let i = 0;
+                const caret = document.createElement('span');
+                caret.className = 'caret';
+                p.appendChild(caret);
+
+                const id = setInterval(() => {
+                    if (i < text.length) {
+                        caret.insertAdjacentText('beforebegin', text.charAt(i));
+                        i++;
+                        container.scrollTop = container.scrollHeight;
+                    } else {
+                        clearInterval(id);
+                        paraIndex++;
+                        const t = setTimeout(typeParagraph, 400);
+                        typingTimeouts.push(t);
+                    }
+                }, 25);
+                typingIntervals.push(id);
+            }
+
+            typeParagraph();
+        }
+
+        // MUSIC PLAYER
+        const playlist = [
+            { title: 'On Bended Knee', artist: 'Boyz II Men', duration: '5:29', url: './assets/music/onebendedknee.mp3' },
+            { title: "(Everything I Do) I Do It For You", artist: 'Bryan Adams', duration: '6:32', url: './assets/music/everythingidoitforyou.mp3' },
+            { title: 'Just the Two of Us', artist: 'Bill Withers', duration: '7:18', url: './assets/music/justthetwoofus.mp3' },
+            { title: "Nothing's Gonna Change My Love For You", artist: 'George Benson', duration: '3:52', url: './assets/music/nothingsgonnachangemyloveforyou.mp3' },
+            { title: 'How Deep Is Your Love', artist: 'Bee Gees', duration: '4:05', url: './assets/music/howdeepisyourlove.mp3' }
+        ];
+
+        let currentTrack = 0;
+        let isPlaying = false;
+        const audio = document.getElementById('audioPlayer');
+
+        function initMusicPlayer() {
+            renderPlaylist();
+            loadTrack(0);
+        }
+
+        function renderPlaylist() {
+            const container = document.getElementById('playlistContainer');
+            container.innerHTML = playlist.map((song, index) => `
+                <div class="playlist-item ${index === currentTrack ? 'active' : ''}" onclick="loadTrack(${index})">
+                    <div class="song-info">${index + 1}. ${song.title}</div>
+                    <div class="song-duration">${song.duration}</div>
+                </div>
+            `).join('');
+        }
+
+        function loadTrack(index) {
+            currentTrack = index;
+            const song = playlist[index];
+            
+            audio.src = song.url;
+            document.getElementById('currentSong').textContent = song.title;
+            document.getElementById('currentArtist').textContent = song.artist;
+            document.getElementById('totalTime').textContent = song.duration;
+            
+            renderPlaylist();
+            
+            if(isPlaying) {
+                audio.play();
+            }
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('playPauseBtn');
+            if(isPlaying) {
+                audio.pause();
+                btn.textContent = '▶ PLAY';
+                isPlaying = false;
+            } else {
+                audio.play();
+                btn.textContent = '⏸ PAUSE';
+                isPlaying = true;
+            }
+        }
+
+        function nextSong() {
+            currentTrack = (currentTrack + 1) % playlist.length;
+            loadTrack(currentTrack);
+            if(isPlaying) audio.play();
+        }
+
+        function previousSong() {
+            currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+            loadTrack(currentTrack);
+            if(isPlaying) audio.play();
+        }
+
+        function changeVolume(delta) {
+            audio.volume = Math.max(0, Math.min(1, audio.volume + delta));
+        }
+
+        function toggleMute() {
+            audio.muted = !audio.muted;
+        }
+
+        function seekAudio(event) {
+            const bar = event.currentTarget;
+            const percent = event.offsetX / bar.offsetWidth;
+            audio.currentTime = percent * audio.duration;
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            document.getElementById('seekProgress').style.width = percent + '%';
+            
+            const mins = Math.floor(audio.currentTime / 60);
+            const secs = Math.floor(audio.currentTime % 60);
+            document.getElementById('currentTime').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        });
+
+        audio.addEventListener('ended', nextSong);
+
+        // TETRIS GAME
+const canvas = document.getElementById('tetrisCanvas');
+const ctx = canvas.getContext('2d');
+const BLOCK_SIZE = 20;
+const COLS = 12;
+const ROWS = 20;
+
+let board = [];
+let currentPiece = null;
+let gameLoop = null;
+let score = 0;
+let lines = 0;
+let level = 1;
+let dropSpeed = 800;
+
+const SHAPES = [
+    [[1,1,1,1]], // I
+    [[1,1],[1,1]], // O
+    [[1,1,1],[0,1,0]], // T
+    [[1,1,1],[1,0,0]], // L
+    [[1,1,1],[0,0,1]], // J
+    [[1,1,0],[0,1,1]], // S
+    [[0,1,1],[1,1,0]]  // Z
+];
+
+const COLORS = ['#ff0066', '#00ff88', '#ffdd00', '#5588ff', '#aa66ff', '#ff8800', '#00ddff'];
+
+function resetTetris() {
+    board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+    score = 0;
+    lines = 0;
+    level = 1;
+    dropSpeed = 800;
+    currentPiece = null;
+    updateStats();
+    drawBoard();
+    
+    const btn = document.querySelector('.start-game-btn');
+    if(btn) {
+        btn.textContent = 'START GAME';
+        btn.style.background = 'linear-gradient(145deg, #44dd88, #33cc77)';
+        btn.style.borderColor = '#22bb66';
+    }
+    
+    if(gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+    }
+}
+
+function startTetris() {
+    const btn = document.querySelector('.start-game-btn');
+    
+    if(gameLoop) {
+        // STOP game
+        clearInterval(gameLoop);
+        gameLoop = null;
+        btn.textContent = '🔄 RESTART';
+        btn.style.background = 'linear-gradient(145deg, #ffdd00, #ffaa00)';
+        btn.style.borderColor = '#dd9900';
+    } else {
+        // START game
+        if(btn.textContent === '🔄 RESTART') {
+            // Reset jika restart
+            board = Array(ROWS).fill().map(() => Array(COLS).fill(0));
+            score = 0;
+            lines = 0;
+            level = 1;
+            dropSpeed = 800;
+            updateStats();
+            drawBoard();
+        }
+        
+        spawnPiece();
+        gameLoop = setInterval(dropPiece, dropSpeed);
+        btn.textContent = '⏹ STOP GAME';
+        btn.style.background = 'linear-gradient(145deg, #ff5566, #ee4455)';
+        btn.style.borderColor = '#cc3344';
+    }
+}
+
+function spawnPiece() {
+    const shapeIndex = Math.floor(Math.random() * SHAPES.length);
+    currentPiece = {
+        shape: SHAPES[shapeIndex],
+        color: COLORS[shapeIndex],
+        x: Math.floor(COLS / 2) - 1,
+        y: 0
+    };
+    
+    if(collision()) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+        
+        const btn = document.querySelector('.start-game-btn');
+        btn.textContent = '🔄 RESTART';
+        btn.style.background = 'linear-gradient(145deg, #ffdd00, #ffaa00)';
+        btn.style.borderColor = '#dd9900';
+        
+        setTimeout(() => {
+            alert('Game Over! Score: ' + score);
+        }, 100);
+    }
+}
+
+function drawBoard() {
+    ctx.fillStyle = '#1a1a1a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    for(let y = 0; y < ROWS; y++) {
+        for(let x = 0; x < COLS; x++) {
+            if(board[y][x]) {
+                ctx.fillStyle = board[y][x];
+                ctx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE - 1, BLOCK_SIZE - 1);
+            }
+        }
+    }
+    
+    if(currentPiece) {
+        ctx.fillStyle = currentPiece.color;
+        currentPiece.shape.forEach((row, dy) => {
+            row.forEach((value, dx) => {
+                if(value) {
+                    ctx.fillRect(
+                        (currentPiece.x + dx) * BLOCK_SIZE,
+                        (currentPiece.y + dy) * BLOCK_SIZE,
+                        BLOCK_SIZE - 1,
+                        BLOCK_SIZE - 1
+                    );
+                }
+            });
+        });
+    }
+}
+
+function collision() {
+    return currentPiece.shape.some((row, dy) => {
+        return row.some((value, dx) => {
+            if(!value) return false;
+            const newX = currentPiece.x + dx;
+            const newY = currentPiece.y + dy;
+            return newX < 0 || newX >= COLS || newY >= ROWS || 
+                   (newY >= 0 && board[newY][newX]);
+        });
+    });
+}
+
+function mergePiece() {
+    currentPiece.shape.forEach((row, dy) => {
+        row.forEach((value, dx) => {
+            if(value) {
+                board[currentPiece.y + dy][currentPiece.x + dx] = currentPiece.color;
+            }
+        });
+    });
+}
+
+function dropPiece() {
+    currentPiece.y++;
+    if(collision()) {
+        currentPiece.y--;
+        mergePiece();
+        clearLines();
+        spawnPiece();
+    }
+    drawBoard();
+}
+
+function moveTetromino(direction) {
+    if(!currentPiece || !gameLoop) return;
+    
+    if(direction === 'left') {
+        currentPiece.x--;
+        if(collision()) currentPiece.x++;
+    } else if(direction === 'right') {
+        currentPiece.x++;
+        if(collision()) currentPiece.x--;
+    } else if(direction === 'down') {
+        currentPiece.y++;
+        if(collision()) {
+            currentPiece.y--;
+            mergePiece();
+            clearLines();
+            spawnPiece();
+        }
+    }
+    drawBoard();
+}
+
+function rotateTetromino() {
+    if(!currentPiece || !gameLoop) return;
+    
+    const rotated = currentPiece.shape[0].map((_, i) =>
+        currentPiece.shape.map(row => row[i]).reverse()
+    );
+    
+    const previous = currentPiece.shape;
+    currentPiece.shape = rotated;
+    
+    if(collision()) {
+        currentPiece.shape = previous;
+    }
+    drawBoard();
+}
+
+function clearLines() {
+    let linesCleared = 0;
+    for(let y = ROWS - 1; y >= 0; y--) {
+        if(board[y].every(cell => cell !== 0)) {
+            board.splice(y, 1);
+            board.unshift(Array(COLS).fill(0));
+            linesCleared++;
+            y++;
+        }
+    }
+    
+    if(linesCleared > 0) {
+        lines += linesCleared;
+        score += linesCleared * 100 * level;
+        level = Math.floor(lines / 10) + 1;
+        updateStats();
+    }
+}
+
+function updateStats() {
+    document.getElementById('score').textContent = score;
+    document.getElementById('lines').textContent = lines;
+    document.getElementById('level').textContent = level;
+}
+
+document.addEventListener('keydown', (e) => {
+    if(!document.getElementById('tetris-screen').classList.contains('active')) return;
+    if(!gameLoop) return;
+    
+    switch(e.key) {
+        case 'ArrowLeft':
+            moveTetromino('left');
+            break;
+        case 'ArrowRight':
+            moveTetromino('right');
+            break;
+        case 'ArrowDown':
+            moveTetromino('down');
+            break;
+        case 'ArrowUp':
+        case ' ':
+            rotateTetromino();
+            break;
+    }
+});
+
+resetTetris();
+    </script>
+</body>
+</html>
